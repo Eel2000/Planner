@@ -18,8 +18,10 @@ public class Project
     public DateTimeOffset LastUpdate { get; set; } = DateTimeOffset.Now;
     public required string WorkSpaceId { get; set; }
     public required bool IsArchived { get; set; }
+    public required string TagId { get; set; }
 
 
+    public virtual Tag? Tag { get; set; }
     public virtual WorkSpace? WorkSpace { get; set; }
     public virtual ICollection<ToDo>? ToDos { get; set; }
     public virtual ICollection<Collaborator>? Collaborators { get; set; }
