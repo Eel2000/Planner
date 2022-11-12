@@ -15,7 +15,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 });
 builder.Services.AddTransient<AuthenticationService>();
 builder.Services.AddSingleton<WeatherForecastService>();
+builder.Services.AddTransient<PlannerMainService>();
 builder.Services.AddScoped<LocalService>();
+
 builder.Services.AddMudServices();
 
 var app = builder.Build();
