@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using MudBlazor.Services;
 using Planner.core.Data;
+using Planner.core.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +13,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("default"));
 });
+builder.Services.AddTransient<AuthenticationService>();
 builder.Services.AddSingleton<WeatherForecastService>();
+builder.Services.AddScoped<LocalService>();
+builder.Services.AddMudServices();
 
 var app = builder.Build();
 

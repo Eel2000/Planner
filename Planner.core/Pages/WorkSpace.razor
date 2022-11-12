@@ -1,0 +1,80 @@
+﻿@page "/workSpace/{id}"
+@layout WorkSpaceLayout
+@inject LocalService local
+@inject NavigationManager navigator
+
+
+<MudBreadcrumbs Items="_items">
+    <ItemTemplate Context="item">
+        <MudLink Href="@item.Href">@item.Text.ToUpper()</MudLink>
+    </ItemTemplate>
+</MudBreadcrumbs>
+<MudGrid>
+    @if(local.ConnectedUserWorkSpaces is null || !local.ConnectedUserWorkSpaces.Any())
+    {
+        <div class="d-flex justify-center align-center mud-height-full px-4 mt-auto">
+            <MudButton OnClick="@CreateWorkSpace" Color="Color.Success">Create new workspace</MudButton>
+        </div>
+    }
+    else
+    {
+        @foreach (var worskpace in local.ConnectedUserWorkSpaces)
+        {
+            <MudItem xs="6" sm="3">
+                <MudCard>
+                    <MudCardHeader>
+                        <CardHeaderAvatar>
+                            <MudAvatar Color="Color.Secondary">@worskpace?.User?.UserName</MudAvatar>
+                        </CardHeaderAvatar>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">@worskpace?.Name</MudText>
+                        </CardHeaderContent>
+                        <CardHeaderActions>
+                            <MudIconButton Icon="@Icons.Material.Filled.ExpandMore" Color="Color.Default" />
+                        </CardHeaderActions>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudText>@worskpace?.Description</MudText>
+                    </MudCardContent>
+                    <MudCardActions>
+                        <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="(()=>GotToWorkSapce(worskpace?.Id))">Open workspace</MudButton>
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
+        }
+    }
+</MudGrid>
+
+@code {
+    //TODO: add the current page layout with flyout and top bar and loader befor showing the workspace
+    [Parameter]
+    public string? id{ get; set; }
+    public static string idU;
+
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        idU = id;
+        Console.WriteLine(id);
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+    }
+
+    private List<BreadcrumbItem> _items = new List<BreadcrumbItem>
+    {
+        new BreadcrumbItem("Home", href: $"/workspace/{idU}"),
+        new BreadcrumbItem("WorkSpace", href: $"/workspace/{idU}")
+    };
+
+    void GotToWorkSapce(string workspaceId)
+    {
+        navigator.NavigateTo($"/active-workspace/{workspaceId}");
+    }
+
+    void CreateWorkSpace() => navigator.NavigateTo($"/new-workspace/{id}");
+}

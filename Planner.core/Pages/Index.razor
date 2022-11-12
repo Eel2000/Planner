@@ -1,9 +1,87 @@
 ﻿@page "/"
 
+@using System.ComponentModel.DataAnnotations;
+@inject AuthenticationService authService
+@inject NavigationManager navigator
+
 <PageTitle>Index</PageTitle>
 
-<h1>Hello, world!</h1>
+<EditForm Model="@user" OnValidSubmit="Connect" class="p-5">
+    <DataAnnotationsValidator />
+    <MudGrid>
+        <MudItem xs="12" sm="7">
+            <MudCard>
+                <MudCardContent>
+                    <MudTextField Label="Username" Class="mt-3"
+                                  @bind-Value="user.Username" For="@(() => user.Username)" />
+                    <MudTextField Label="Password" HelperText="Choose a strong password" Class="mt-3"
+                                  @bind-Value="user.Password" For="@(() => user.Password)" InputType="InputType.Password" />
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Log In</MudButton>
+                    <MudButton ButtonType="ButtonType.Button" OnClick="Register" Variant="Variant.Filled" Color="Color.Tertiary" Class="ml-auto">Register</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" sm="5">
+            <MudPaper Class="pa-4 mud-height-full">
+                <MudText Typo="Typo.subtitle2">Validation Summary</MudText>
+                @if (success)
+                {
+                    <MudText Color="Color.Success">Success</MudText>
+                }
+                else
+                {
+                    <MudText Color="@Color.Error">
+                        <ValidationSummary />
+                    </MudText>
+                }
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12">
+            <MudText Typo="Typo.body2" Align="Align.Center">
+                Fill out the form correctly to connect.
+            </MudText>
+        </MudItem>
+    </MudGrid>
+</EditForm>
 
-Welcome to your new app.
+@code {
+    MudForm? form;
+    bool success;
+    private UserDTO? user = new();
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+    async void Connect()
+    {
+        var authResult = await authService.LogInAsync(user!.Username!, user.Password!);
+        if (authResult.Status == DTOsm.Status.Success)
+        {
+            var cryptedUser = Convert.ToBase64String(Encoding.Default.GetBytes(JsonConvert.SerializeObject(authResult.data)));
+            //connected
+            success = true;
+            StateHasChanged();
+            navigator.NavigateTo($"/loading/{cryptedUser}");
+        }
+        else
+        {
+            //display the alert with the message error
+        }
+    }
+
+    private async void Register()
+    {
+        var authResult = await authService.RegisterAsync(user!.Username!, user.Password!);
+        if (authResult.Status == DTOsm.Status.Success)
+        {
+            //connected
+            success = true;
+            StateHasChanged();
+            navigator.NavigateTo("/fetchdata");
+        }
+        else
+        {
+            //display the alert with the message error
+        }
+    }
+
+}

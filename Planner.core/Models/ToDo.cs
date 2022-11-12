@@ -10,6 +10,7 @@ public class ToDo
     public required string Description { get; set; }
     public DateTimeOffset StartDate { get; set; } = DateTimeOffset.Now;
     public DateTimeOffset? EndDate { get; set;}
+    public string ProjectId { get; set; }
 
     /// <summary>
     /// serialized list of this todo tasks
@@ -18,4 +19,5 @@ public class ToDo
     public string? CollaboratorId { get; set; }
 
     public virtual Collaborator? Collaborator { get; set; }
+    public virtual Project? Project { get; set; }
 }
