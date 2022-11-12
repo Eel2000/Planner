@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Planner.core.Data;
 using Planner.core.DTOs;
-using Planner.core.DTOsm;
 using Planner.core.Models;
 
 namespace Planner.core.Services;
@@ -14,6 +13,7 @@ public class PlannerMainService
     {
         _context = context;
     }
+    #region Workspace
 
     public async Task<Response<WorkSpace>> CreateWorkSpaceAsync(WorkspaceDTO workspace)
     {
@@ -53,7 +53,7 @@ public class PlannerMainService
 
     public async Task<Response<string>> RemoveWorkSpaceAsync(string userId, string workspaceId)
     {
-        var toRemove = await _context.WorkSpaces.FirstOrDefaultAsync(w => w.Id == workspaceId);
+        var toRemove = await _context.WorkSpaces.FirstOrDefaultAsync(w => w.Id == workspaceId && w.UserId == userId);
         if (toRemove == null)
         {
             return new Response<string>(Status.Error, "Error on deleting the workspace. Please try again later.");
@@ -63,10 +63,21 @@ public class PlannerMainService
         if (projects.Any())
         {
             _context.Projects.RemoveRange(projects);
-            //projects.ForEach(async projects=>
-            //{
-            //    await _context.ToDos.Where(x=>x.)
-            //})
+            var pTodos = new List<ToDo>();
+            projects.ForEach(async projects =>
+            {
+                var pTodos = await _context.ToDos.Where(t => t.ProjectId == projects.Id).ToListAsync();
+                pTodos.AddRange(pTodos);
+            });
+
+            if (pTodos.Any())
+            {
+                _context.ToDos.RemoveRange(pTodos);
+            }
         }
-    }
+        await _context.SaveChangesAsync();
+
+        return new Response<string>(Status.Success, $"The workspace {toRemove.Name} has been deleted");
+    } 
+    #endregion
 }

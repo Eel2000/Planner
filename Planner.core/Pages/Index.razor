@@ -54,7 +54,7 @@
     async void Connect()
     {
         var authResult = await authService.LogInAsync(user!.Username!, user.Password!);
-        if (authResult.Status == DTOsm.Status.Success)
+        if (authResult.Status == DTOs.Status.Success)
         {
             var cryptedUser = Convert.ToBase64String(Encoding.Default.GetBytes(JsonConvert.SerializeObject(authResult.data)));
             //connected
@@ -71,7 +71,7 @@
     private async void Register()
     {
         var authResult = await authService.RegisterAsync(user!.Username!, user.Password!);
-        if (authResult.Status == DTOsm.Status.Success)
+        if (authResult.Status == DTOs.Status.Success)
         {
             //connected
             success = true;
