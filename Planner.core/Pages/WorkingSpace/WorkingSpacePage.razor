@@ -1,0 +1,101 @@
+﻿@page "/working-space/{WorkSpaceId}/user/{UserId}"
+@layout WorkSpaceLayout
+
+@inject PlannerMainService planner
+
+<MudBreadcrumbs Items="_items">
+    <ItemTemplate Context="item">
+        <MudLink Href="@item.Href">@item.Text.ToUpper()</MudLink>
+    </ItemTemplate>
+</MudBreadcrumbs>
+
+@if (workingSpace is null)
+{
+    <h1 class="alert-danger text-white-50">Error on data fetching</h1>
+}
+else
+{
+    <div class="container-fluid px-5">
+        <h3>@workingSpace.Name </h3>
+        <div class="d-flex justify-center align-center mud-height-full px-4 mt-auto">
+            <MudButton OnClick="@CreateProject" Color="Color.Success">Create new project</MudButton>
+        </div>
+        <MudGrid>
+            @if (workingSpace.Projects is null || !workingSpace.Projects.Any())
+            {
+            }
+            else
+            {
+                @foreach (var project in workingSpace.Projects)
+                {
+                    <MudItem xs="6" sm="3" Class="px-6">
+                        <MudCard>
+                            <MudCardHeader>
+                                <CardHeaderAvatar>
+                                    <MudAvatar Color="Color.Secondary">@project?.ProjectName[0]</MudAvatar>
+                                </CardHeaderAvatar>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.h6">
+                                        @project.ProjectName <MudChip Text="@(project.Tag is null?"Starter":project.Tag.Name)" Color="Color.Info">Info</MudChip>
+                                    </MudText>
+                                </CardHeaderContent>
+                                <CardHeaderActions>
+                                    <MudIconButton Icon="@Icons.Material.Filled.ExpandMore" Color="Color.Default" />
+                                </CardHeaderActions>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                <MudText>@project?.ProjectDescription</MudText>
+                            </MudCardContent>
+                            <MudCardActions>
+                                <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="(()=>OpenProject(project?.Id))">Open project</MudButton>
+                            </MudCardActions>
+                        </MudCard>
+                    </MudItem>
+                }
+            }
+        </MudGrid>
+
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string? WorkSpaceId { get; set; }
+    [Parameter]
+    public string? UserId { get; set; }
+
+    private static string? idU;
+
+    private WorkSpace? workingSpace;
+    private List<BreadcrumbItem> _items = new List<BreadcrumbItem>
+    {
+        new BreadcrumbItem("Home", href: $"/workspace/{idU}"),
+        new BreadcrumbItem("WorkSpaces", href: $"/workspace/{idU}"),
+        new BreadcrumbItem("Working-space", href: $"/workspace/{idU}", disabled: true),
+    };
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        idU = UserId;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var fromService = await planner.GetUserWorkingSpaceAsync(UserId, WorkSpaceId);
+        if (fromService.Status == Status.Success)
+        {
+            workingSpace = fromService?.data;
+        }
+    }
+
+    void CreateProject()
+    {
+
+    }
+
+    void OpenProject(string projectId)
+    {
+
+    }
+}

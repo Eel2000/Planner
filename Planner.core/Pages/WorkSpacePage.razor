@@ -1,7 +1,9 @@
 ﻿@page "/workSpace/{id}"
+@using System.Collections.ObjectModel;
 @layout WorkSpaceLayout
 @inject LocalService local
 @inject NavigationManager navigator
+@inject PlannerMainService planner
 
 
 <MudBreadcrumbs Items="_items">
@@ -10,7 +12,7 @@
     </ItemTemplate>
 </MudBreadcrumbs>
 <MudGrid>
-    @if(local.ConnectedUserWorkSpaces is null || !local.ConnectedUserWorkSpaces.Any())
+    @if (workSpaces is null || !workSpaces.Any())
     {
         <div class="d-flex justify-center align-center mud-height-full px-4 mt-auto">
             <MudButton OnClick="@CreateWorkSpace" Color="Color.Success">Create new workspace</MudButton>
@@ -18,26 +20,26 @@
     }
     else
     {
-        @foreach (var worskpace in local.ConnectedUserWorkSpaces)
+        @foreach (var workSpace in workSpaces)
         {
-            <MudItem xs="6" sm="3">
+            <MudItem xs="6" sm="3" Class="px-6">
                 <MudCard>
                     <MudCardHeader>
                         <CardHeaderAvatar>
-                            <MudAvatar Color="Color.Secondary">@worskpace?.User?.UserName</MudAvatar>
+                            <MudAvatar Color="Color.Secondary">@workSpace?.Name[0]</MudAvatar>
                         </CardHeaderAvatar>
                         <CardHeaderContent>
-                            <MudText Typo="Typo.h6">@worskpace?.Name</MudText>
+                            <MudText Typo="Typo.h6">@workSpace.Name</MudText>
                         </CardHeaderContent>
                         <CardHeaderActions>
                             <MudIconButton Icon="@Icons.Material.Filled.ExpandMore" Color="Color.Default" />
                         </CardHeaderActions>
                     </MudCardHeader>
                     <MudCardContent>
-                        <MudText>@worskpace?.Description</MudText>
+                        <MudText>@workSpace?.Description</MudText>
                     </MudCardContent>
                     <MudCardActions>
-                        <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="(()=>GotToWorkSapce(worskpace?.Id))">Open workspace</MudButton>
+                        <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="(()=>GotToWorkSapce(workSpace?.Id))">Open workspace</MudButton>
                     </MudCardActions>
                 </MudCard>
             </MudItem>
@@ -48,8 +50,10 @@
 @code {
     //TODO: add the current page layout with flyout and top bar and loader befor showing the workspace
     [Parameter]
-    public string? id{ get; set; }
+    public string? id { get; set; }
     public static string idU;
+
+    private ObservableCollection<WorkSpace>? workSpaces;
 
 
     protected override void OnParametersSet()
@@ -59,22 +63,28 @@
         Console.WriteLine(id);
     }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         base.OnInitialized();
-
+        workSpaces = new();
+        var fromdata = await planner.GetUserWorkspacesAsync(id);
+        if (fromdata.Status == Status.Success)
+        {
+            local.KeepLoadedWorkspaceForLaterUser(workSpaces: fromdata?.data.ToList());
+            workSpaces = new ObservableCollection<WorkSpace>(fromdata?.data);
+        }
     }
 
     private List<BreadcrumbItem> _items = new List<BreadcrumbItem>
     {
         new BreadcrumbItem("Home", href: $"/workspace/{idU}"),
-        new BreadcrumbItem("WorkSpace", href: $"/workspace/{idU}")
+        new BreadcrumbItem("WorkSpaces", href: $"/workspace/{idU}", disabled: true)
     };
 
     void GotToWorkSapce(string workspaceId)
     {
-        navigator.NavigateTo($"/active-workspace/{workspaceId}");
+        navigator.NavigateTo($"/working-space/{workspaceId}/user/{id}");
     }
 
-    void CreateWorkSpace() => navigator.NavigateTo($"/new-workspace/{id}");
+    void CreateWorkSpace() => navigator.NavigateTo($"/workspace-new/{id}");
 }

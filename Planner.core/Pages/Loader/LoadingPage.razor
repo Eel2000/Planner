@@ -1,5 +1,7 @@
 ﻿@page "/loading/{user}"
 @inject NavigationManager navigator
+@inject PlannerMainService planner
+@inject LocalService local
 
 
 <div class="centering">
@@ -25,8 +27,12 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await Task.Delay(3000);//simulate data initialization
-        //TODO: load user workspace data here and pass it to worskpasse page
-        navigator.NavigateTo($"/workspace/{data?.Id}");
+        var workspaces = await planner.GetUserWorkspacesAsync(data?.Id);
+        local.SaveConnectedUserState(data);
+        if (workspaces.Status == Status.Success)
+        {
+            local.KeepLoadedWorkspaceForLaterUser(workSpaces: workspaces?.data.ToList());
+            navigator.NavigateTo($"/workspace/{data?.Id}");
+        }
     }
 }

@@ -45,8 +45,9 @@ public class PlannerMainService
             return new Response<IReadOnlyList<WorkSpace>>(Status.Failure, "Please specify the user");
         }
         var workspaces = await _context.WorkSpaces
+            .Include(w => w.User)
             .Include(w => w.Projects)
-            .ThenInclude(p => p.Tag)
+                .ThenInclude(p => p.Tag)
             .ToListAsync();
         return new Response<IReadOnlyList<WorkSpace>>(Status.Success, $"User {userId} workspaces", workspaces);
     }
@@ -78,6 +79,16 @@ public class PlannerMainService
         await _context.SaveChangesAsync();
 
         return new Response<string>(Status.Success, $"The workspace {toRemove.Name} has been deleted");
-    } 
+    }
+
+    public async Task<Response<WorkSpace>> GetUserWorkingSpaceAsync(string userId, string workspaceId)
+    {
+        var workspace = await _context.WorkSpaces.Where(w => w.UserId == userId && w.Id == workspaceId)
+            .Include(w => w.Projects)
+                .ThenInclude(p => p.ToDos)
+            .FirstOrDefaultAsync();
+
+        return new Response<WorkSpace>(Status.Success, "working space retreived", workspace);
+    }
     #endregion
 }
