@@ -1,0 +1,38 @@
+﻿@page "/loading/{user}"
+@inject NavigationManager navigator
+@inject PlannerMainService planner
+@inject LocalService local
+
+
+<div class="centering">
+    <div class="spinner"></div>
+</div>
+
+@code {
+    [Parameter]
+    public string? user { get; set; }
+
+    private User? data;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        if (string.IsNullOrWhiteSpace(user))
+        {
+            throw new KeyNotFoundException("Failed to load ressources");
+        }
+
+        data = JsonConvert.DeserializeObject<User>(Encoding.Default.GetString(Convert.FromBase64String(user)));
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var workspaces = await planner.GetUserWorkspacesAsync(data?.Id);
+        local.SaveConnectedUserState(data);
+        if (workspaces.Status == Status.Success)
+        {
+            local.KeepLoadedWorkspaceForLaterUser(workSpaces: workspaces?.data.ToList());
+            navigator.NavigateTo($"/workspace/{data?.Id}");
+        }
+    }
+}
