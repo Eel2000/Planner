@@ -11,41 +11,44 @@
         <MudLink Href="@item.Href">@item.Text.ToUpper()</MudLink>
     </ItemTemplate>
 </MudBreadcrumbs>
-<MudGrid>
-    @if (workSpaces is null || !workSpaces.Any())
-    {
-        <div class="d-flex justify-center align-center mud-height-full px-4 mt-auto">
-            <MudButton OnClick="@CreateWorkSpace" Color="Color.Success">Create new workspace</MudButton>
-        </div>
-    }
-    else
-    {
-        @foreach (var workSpace in workSpaces)
+<div class="container-fluid px-4">
+    <div class="d-flex mud-height-full mb-4 mt-auto">
+        <MudButton OnClick="@CreateWorkSpace" Color="Color.Success">Create new workspace</MudButton>
+    </div>
+    <MudGrid>
+        @if (workSpaces is null || !workSpaces.Any())
         {
-            <MudItem xs="6" sm="3" Class="px-6">
-                <MudCard>
-                    <MudCardHeader>
-                        <CardHeaderAvatar>
-                            <MudAvatar Color="Color.Secondary">@workSpace?.Name[0]</MudAvatar>
-                        </CardHeaderAvatar>
-                        <CardHeaderContent>
-                            <MudText Typo="Typo.h6">@workSpace.Name</MudText>
-                        </CardHeaderContent>
-                        <CardHeaderActions>
-                            <MudIconButton Icon="@Icons.Material.Filled.ExpandMore" Color="Color.Default" />
-                        </CardHeaderActions>
-                    </MudCardHeader>
-                    <MudCardContent>
-                        <MudText>@workSpace?.Description</MudText>
-                    </MudCardContent>
-                    <MudCardActions>
-                        <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="(()=>GotToWorkSapce(workSpace?.Id))">Open workspace</MudButton>
-                    </MudCardActions>
-                </MudCard>
-            </MudItem>
+
         }
-    }
-</MudGrid>
+        else
+        {
+            @foreach (var workSpace in workSpaces)
+            {
+                <MudItem xs="6" sm="3">
+                    <MudCard>
+                        <MudCardHeader>
+                            <CardHeaderAvatar>
+                                <MudAvatar Color="Color.Secondary">@workSpace?.Name[0]</MudAvatar>
+                            </CardHeaderAvatar>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.h6">@workSpace.Name</MudText>
+                            </CardHeaderContent>
+                            <CardHeaderActions>
+                                <MudIconButton Icon="@Icons.Material.Filled.ExpandMore" Color="Color.Default" />
+                            </CardHeaderActions>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <MudText>@workSpace?.Description</MudText>
+                        </MudCardContent>
+                        <MudCardActions>
+                            <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="(()=>GotToWorkSapce(workSpace?.Id))">Open workspace</MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                </MudItem>
+            }
+        }
+    </MudGrid>
+</div>
 
 @code {
     //TODO: add the current page layout with flyout and top bar and loader befor showing the workspace
