@@ -13,6 +13,7 @@ public class PlannerMainService
     {
         _context = context;
     }
+
     #region Workspace
 
     public async Task<Response<WorkSpace>> CreateWorkSpaceAsync(WorkspaceDTO workspace)
@@ -89,6 +90,44 @@ public class PlannerMainService
             .FirstOrDefaultAsync();
 
         return new Response<WorkSpace>(Status.Success, "working space retreived", workspace);
+    }
+    #endregion
+
+    #region Project
+
+    public async Task<Response<IReadOnlyList<Project>>> GetWorkSpaceProjectAsync(string id)
+    {
+        var projects = await _context.Projects
+            .Where(p => p.Id == id)
+            .Include(p => p.Tag)
+            .Include(p => p.ToDos)
+            .Include(p => p.Collaborators)
+            .Order()
+            .ToListAsync();
+
+        return new Response<IReadOnlyList<Project>>(Status.Success, "Workspace project loaded", projects);
+    }
+
+    public async Task<Response<Project>> AddProjectToWorkSpaceAsync(ProjectDTO project)
+    {
+        if(!await _context.Projects.AnyAsync(p => p.ProjectName == project.ProjectName))
+        {
+            var projectNew = new Project
+            {
+                ProjectName = project.ProjectName,
+                ProjectDescription = project.ProjectDescription,
+                WorkSpaceId = project.WorkSpaceId,
+                IsArchived = false,
+                TagId = project.TagId
+            };
+
+            await _context.Projects.AddAsync(projectNew);
+            await _context.SaveChangesAsync();
+
+            return new Response<Project>(Status.Success, "Project created");
+        }
+
+        return new Response<Project>(Status.Failure, "There is already a project with the same name");
     }
     #endregion
 }

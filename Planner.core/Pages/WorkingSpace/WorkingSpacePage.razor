@@ -16,7 +16,9 @@
 else
 {
     <div class="container-fluid px-5">
-        <h3>@workingSpace.Name </h3>
+        <h3>
+            <MudChip Color="Color.Info">@workingSpace.Name</MudChip>
+        </h3>
         <div class="d-flex justify-center align-center mud-height-full px-4 mt-auto">
             <MudButton OnClick="@CreateProject" Color="Color.Success">Create new project</MudButton>
         </div>
