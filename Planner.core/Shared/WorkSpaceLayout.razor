@@ -13,20 +13,11 @@
         <MudIconButton Icon="@Icons.Custom.Brands.Twitter" Color="Color.Inherit" />
         <MudIconButton Icon="@Icons.Custom.Brands.Facebook" Color="Color.Inherit" />
         <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" />
+        <MudIconButton Icon="@Icons.Filled.AccountCircle" Color="Color.Inherit" />
     </MudAppBar>
-    <MudPaper Style="overflow:hidden; position:relative;height: 100vh;">
-        <MudDrawerContainer Class="mud-height-full">
-            <MudDrawer @bind-Open="@open" Fixed="false" Elevation="1" Variant="@DrawerVariant.Mini" OpenMiniOnHover="true">
-                <MudNavMenu>
-                    <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Filled.Workspaces">WorkSpaces</MudNavLink>
-                    <MudNavLink Href="/fetchdata" Icon="@Icons.Filled.AddToQueue">Create WorkSpace</MudNavLink>
-                </MudNavMenu>
-            </MudDrawer>
-            <MudMainContent>
-                @Body
-            </MudMainContent>
-        </MudDrawerContainer>
-    </MudPaper>
+    <MudMainContent>
+        @Body
+    </MudMainContent>
 </MudLayout>
 
 @code

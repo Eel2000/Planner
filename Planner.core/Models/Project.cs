@@ -11,7 +11,7 @@ public class Project
     }
 
     [Key]
-    public required string Id { get; set; } = Guid.NewGuid().ToString();
+    public string Id { get; set; } = Guid.NewGuid().ToString();
     public required string ProjectName { get; set; }
     public string? ProjectDescription { get; set; }
     public DateTimeOffset CreationDate { get; set; } = DateTimeOffset.Now;
