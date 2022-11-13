@@ -11,8 +11,8 @@
         </ItemTemplate>
     </MudBreadcrumbs>
 
-<div class="container-fluid px-3">
-    @if (openedProject is not null)
+    <div class="container-fluid px-3">
+        @if (openedProject is not null)
     {
         <ul class="d-inline-flex flex-lg-shrink-1">
             <li class="badge bg-info display-3 p-2 m-1">Name: @openedProject.ProjectName</li>
@@ -36,18 +36,22 @@
     private Project? openedProject;
     private static string? idU;
     private static string? workSpaceId;
-    private List<BreadcrumbItem> _items = new List<BreadcrumbItem>
-    {
-        new BreadcrumbItem("Home", href: $"/workspace/{idU}"),
-        new BreadcrumbItem("WorkSpaces", href: $"/workspace/{idU}"),
-        new BreadcrumbItem("Working-space", href: $"/working-space/{workSpaceId}/user/{idU}"),
-        new BreadcrumbItem("Project", href: string.Empty, disabled:true),
-    };
+    private List<BreadcrumbItem> _items;
+
 
     protected override async Task OnParametersSetAsync()
     {
         idU = UserId;
         workSpaceId = WorkSpaceId;
+
+        _items = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem("Home", href: $"/workspace/{idU}"),
+            new BreadcrumbItem("WorkSpaces", href: $"/workspace/{idU}"),
+            new BreadcrumbItem("Working-space", href: $"/working-space/{workSpaceId}/user/{idU}"),
+            new BreadcrumbItem("Project", href: string.Empty, disabled:true),
+        };
+
         var call = await planner.GetProjectbyIdAsync(ProjectId);
         if (call.Status == Status.Success)
         {
