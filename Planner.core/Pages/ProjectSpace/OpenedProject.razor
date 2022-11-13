@@ -1,0 +1,55 @@
+﻿@page "/openedProject/{ProjectId}/user/{UserId}/working-space/{WorkSpaceId}"
+@layout WorkSpaceLayout
+
+@inject PlannerMainService planner
+
+<PageTitle>Working-project:@(openedProject is null ? "error" : openedProject.ProjectName)</PageTitle>
+
+    <MudBreadcrumbs Items="_items">
+        <ItemTemplate Context="item">
+            <MudLink Href="@item.Href">@item.Text.ToUpper()</MudLink>
+        </ItemTemplate>
+    </MudBreadcrumbs>
+
+<div class="container-fluid px-3">
+    @if (openedProject is not null)
+    {
+        <h3>Opened Project : @openedProject.ProjectName</h3>
+        <h5>Last update : @openedProject.LastUpdate</h5>
+        <h5>Collaborators count : @openedProject.Collaborators.Count()</h5>
+    }
+    else
+    {
+        <p>Loading...</p>
+    }
+</div>
+
+
+@code {
+    [Parameter] public string? ProjectId { get; set; }
+    [Parameter] public string? UserId { get; set; }
+    [Parameter] public string? WorkSpaceId { get; set; }
+
+    private Project? openedProject;
+    private static string? idU;
+    private static string? workSpaceId;
+    private List<BreadcrumbItem> _items = new List<BreadcrumbItem>
+    {
+        new BreadcrumbItem("Home", href: $"/workspace/{idU}"),
+        new BreadcrumbItem("WorkSpaces", href: $"/workspace/{idU}"),
+        new BreadcrumbItem("Working-space", href: $"/working-space/{workSpaceId}/user/{idU}"),
+        new BreadcrumbItem("OpenedProject", href: string.Empty, disabled:true),
+    };
+
+    protected override async Task OnParametersSetAsync()
+    {
+        idU = UserId;
+        workSpaceId = WorkSpaceId;
+        var call = await planner.GetProjectbyIdAsync(ProjectId);
+        if (call.Status == Status.Success)
+        {
+            openedProject = call.data;
+            StateHasChanged();
+        }
+    }
+}
