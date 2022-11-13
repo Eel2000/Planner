@@ -14,9 +14,12 @@
 <div class="container-fluid px-3">
     @if (openedProject is not null)
     {
-        <h3>Opened Project : @openedProject.ProjectName</h3>
-        <h5>Last update : @openedProject.LastUpdate</h5>
-        <h5>Collaborators count : @openedProject.Collaborators.Count()</h5>
+        <ul class="d-inline-flex flex-lg-shrink-1">
+            <li class="badge bg-info display-3 p-2 m-1">Name: @openedProject.ProjectName</li>
+            <li class="badge bg-warning display-3 p-2 m-1">Tag: @openedProject?.Tag?.Name</li>
+            <li class="badge bg-success display-3 p-2 m-1">Last Update: @openedProject?.LastUpdate.ToString("D")</li>
+            <li class="badge bg-primary display-3 p-2 m-1">Collaborators: @openedProject?.Collaborators?.Count()</li>
+        </ul>
     }
     else
     {
@@ -38,7 +41,7 @@
         new BreadcrumbItem("Home", href: $"/workspace/{idU}"),
         new BreadcrumbItem("WorkSpaces", href: $"/workspace/{idU}"),
         new BreadcrumbItem("Working-space", href: $"/working-space/{workSpaceId}/user/{idU}"),
-        new BreadcrumbItem("OpenedProject", href: string.Empty, disabled:true),
+        new BreadcrumbItem("Project", href: string.Empty, disabled:true),
     };
 
     protected override async Task OnParametersSetAsync()
