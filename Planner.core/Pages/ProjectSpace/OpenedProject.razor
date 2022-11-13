@@ -1,0 +1,62 @@
+﻿@page "/openedProject/{ProjectId}/user/{UserId}/working-space/{WorkSpaceId}"
+@layout WorkSpaceLayout
+
+@inject PlannerMainService planner
+
+<PageTitle>Working-project:@(openedProject is null ? "error" : openedProject.ProjectName)</PageTitle>
+
+    <MudBreadcrumbs Items="_items">
+        <ItemTemplate Context="item">
+            <MudLink Href="@item.Href">@item.Text.ToUpper()</MudLink>
+        </ItemTemplate>
+    </MudBreadcrumbs>
+
+    <div class="container-fluid px-3">
+        @if (openedProject is not null)
+    {
+        <ul class="d-inline-flex flex-lg-shrink-1">
+            <li class="badge bg-info display-3 p-2 m-1">Name: @openedProject.ProjectName</li>
+            <li class="badge bg-warning display-3 p-2 m-1">Tag: @openedProject?.Tag?.Name</li>
+            <li class="badge bg-success display-3 p-2 m-1">Last Update: @openedProject?.LastUpdate.ToString("D")</li>
+            <li class="badge bg-primary display-3 p-2 m-1">Collaborators: @openedProject?.Collaborators?.Count()</li>
+        </ul>
+    }
+    else
+    {
+        <p>Loading...</p>
+    }
+</div>
+
+
+@code {
+    [Parameter] public string? ProjectId { get; set; }
+    [Parameter] public string? UserId { get; set; }
+    [Parameter] public string? WorkSpaceId { get; set; }
+
+    private Project? openedProject;
+    private static string? idU;
+    private static string? workSpaceId;
+    private List<BreadcrumbItem> _items;
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+        idU = UserId;
+        workSpaceId = WorkSpaceId;
+
+        _items = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem("Home", href: $"/workspace/{idU}"),
+            new BreadcrumbItem("WorkSpaces", href: $"/workspace/{idU}"),
+            new BreadcrumbItem("Working-space", href: $"/working-space/{workSpaceId}/user/{idU}"),
+            new BreadcrumbItem("Project", href: string.Empty, disabled:true),
+        };
+
+        var call = await planner.GetProjectbyIdAsync(ProjectId);
+        if (call.Status == Status.Success)
+        {
+            openedProject = call.data;
+            StateHasChanged();
+        }
+    }
+}

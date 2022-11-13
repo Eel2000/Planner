@@ -86,7 +86,7 @@ public class PlannerMainService
     {
         var workspace = await _context.WorkSpaces.Where(w => w.UserId == userId && w.Id == workspaceId)
             .Include(w => w.Projects)
-                .ThenInclude(p => p.ToDos)
+                .ThenInclude(p => p.Tag)
             .FirstOrDefaultAsync();
 
         return new Response<WorkSpace>(Status.Success, "working space retreived", workspace);
@@ -102,18 +102,31 @@ public class PlannerMainService
             .Include(p => p.Tag)
             .Include(p => p.ToDos)
             .Include(p => p.Collaborators)
-            .OrderBy(x=>x.ProjectName)
+            .OrderBy(x => x.ProjectName)
             .ToListAsync();
 
         return new Response<IReadOnlyList<Project>>(Status.Success, "Workspace project loaded", projects);
     }
 
+    public async Task<Response<Project>> GetProjectbyIdAsync(string id)
+    {
+        var projects = await _context.Projects
+            .Where(p => p.Id == id)
+            .Include(p => p.Tag)
+            .Include(p => p.Collaborators)
+            .Include(p => p.ToDos)
+                .ThenInclude(t => t.Collaborator)
+            .FirstOrDefaultAsync();
+
+        return new Response<Project>(Status.Success, "Project loaded", projects);
+    }
+
     public async Task<Response<Project>> AddProjectToWorkSpaceAsync(ProjectDTO project)
     {
-        if(!await _context.Projects.AnyAsync(p => p.ProjectName == project.ProjectName))
+        if (!await _context.Projects.AnyAsync(p => p.ProjectName == project.ProjectName))
         {
             var tag = await _context.Tags.FirstOrDefaultAsync(t => t.Name == project.TagId);
-            if(tag is null)
+            if (tag is null)
             {
                 tag = new Tag
                 {
@@ -137,7 +150,7 @@ public class PlannerMainService
             await _context.Projects.AddAsync(projectNew);
             await _context.SaveChangesAsync();
 
-            return new Response<Project>(Status.Success, "Project created",projectNew);
+            return new Response<Project>(Status.Success, "Project created", projectNew);
         }
 
         return new Response<Project>(Status.Failure, "There is already a project with the same name");
