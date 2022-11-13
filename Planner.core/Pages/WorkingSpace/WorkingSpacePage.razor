@@ -2,6 +2,8 @@
 @layout WorkSpaceLayout
 
 @inject PlannerMainService planner
+@inject IDialogService DialogService
+@inject NavigationManager navigator
 
 <MudBreadcrumbs Items="_items">
     <ItemTemplate Context="item">
@@ -33,12 +35,9 @@ else
                     <MudItem xs="6" sm="3" Class="px-6">
                         <MudCard>
                             <MudCardHeader>
-                                <CardHeaderAvatar>
-                                    <MudAvatar Color="Color.Secondary">@project?.ProjectName[0]</MudAvatar>
-                                </CardHeaderAvatar>
                                 <CardHeaderContent>
                                     <MudText Typo="Typo.h6">
-                                        @project.ProjectName <MudChip Text="@(project.Tag is null?"Starter":project.Tag.Name)" Color="Color.Info">Info</MudChip>
+                                        @project.ProjectName <MudChip Text="@(project.Tag is null?"Starter":project.Tag.Name)" Color="Color.Info">@project.LastUpdate.ToString("M")</MudChip>
                                     </MudText>
                                 </CardHeaderContent>
                                 <CardHeaderActions>
@@ -88,12 +87,24 @@ else
         if (fromService.Status == Status.Success)
         {
             workingSpace = fromService?.data;
+            StateHasChanged();
         }
     }
 
-    void CreateProject()
+    async void CreateProject()
     {
-
+        var parameters = new DialogParameters { ["WorkspaceId"] = WorkSpaceId };
+        var dialog = DialogService.Show<Dialogs.AddProjectDialog>("AddProject", parameters);
+        var result = await dialog.Result;
+        if (!result.Cancelled)
+        {
+            var fromService = await planner.GetUserWorkingSpaceAsync(UserId, WorkSpaceId);
+            if (fromService.Status == Status.Success)
+            {
+                workingSpace = fromService?.data;
+                StateHasChanged();
+            }
+        }
     }
 
     void OpenProject(string projectId)

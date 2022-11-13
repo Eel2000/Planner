@@ -98,11 +98,11 @@ public class PlannerMainService
     public async Task<Response<IReadOnlyList<Project>>> GetWorkSpaceProjectAsync(string id)
     {
         var projects = await _context.Projects
-            .Where(p => p.Id == id)
+            .Where(p => p.WorkSpaceId == id)
             .Include(p => p.Tag)
             .Include(p => p.ToDos)
             .Include(p => p.Collaborators)
-            .Order()
+            .OrderBy(x=>x.ProjectName)
             .ToListAsync();
 
         return new Response<IReadOnlyList<Project>>(Status.Success, "Workspace project loaded", projects);
@@ -112,19 +112,32 @@ public class PlannerMainService
     {
         if(!await _context.Projects.AnyAsync(p => p.ProjectName == project.ProjectName))
         {
+            var tag = await _context.Tags.FirstOrDefaultAsync(t => t.Name == project.TagId);
+            if(tag is null)
+            {
+                tag = new Tag
+                {
+                    ColorHex = "Info",
+                    Name = project.TagId
+                };
+                await _context.Tags.AddAsync(tag);
+                await _context.SaveChangesAsync();
+            }
+
             var projectNew = new Project
             {
-                ProjectName = project.ProjectName,
+                ProjectName = project?.ProjectName,
                 ProjectDescription = project.ProjectDescription,
                 WorkSpaceId = project.WorkSpaceId,
                 IsArchived = false,
-                TagId = project.TagId
+                TagId = tag.Id
             };
+
 
             await _context.Projects.AddAsync(projectNew);
             await _context.SaveChangesAsync();
 
-            return new Response<Project>(Status.Success, "Project created");
+            return new Response<Project>(Status.Success, "Project created",projectNew);
         }
 
         return new Response<Project>(Status.Failure, "There is already a project with the same name");
