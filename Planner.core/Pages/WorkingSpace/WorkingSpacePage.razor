@@ -38,6 +38,7 @@ else
                                 <CardHeaderContent>
                                     <MudText Typo="Typo.h6">
                                         @project.ProjectName <MudChip Text="@(project.Tag is null?"Starter":project.Tag.Name)" Color="Color.Info">@project.LastUpdate.ToString("M")</MudChip>
+                                        <MudChip Text="@(project.Tag is null?"Starter":project.Tag.Name)" Color="Color.Warning">@project?.Tag?.Name</MudChip>
                                     </MudText>
                                 </CardHeaderContent>
                                 <CardHeaderActions>
@@ -98,10 +99,10 @@ else
         var result = await dialog.Result;
         if (!result.Cancelled)
         {
-            var fromService = await planner.GetUserWorkingSpaceAsync(UserId, WorkSpaceId);
+            var fromService = await planner.GetWorkSpaceProjectAsync(WorkSpaceId);
             if (fromService.Status == Status.Success)
             {
-                workingSpace = fromService?.data;
+                workingSpace.Projects = new List<Project>(fromService.data);
                 StateHasChanged();
             }
         }

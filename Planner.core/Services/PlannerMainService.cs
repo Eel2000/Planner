@@ -86,7 +86,7 @@ public class PlannerMainService
     {
         var workspace = await _context.WorkSpaces.Where(w => w.UserId == userId && w.Id == workspaceId)
             .Include(w => w.Projects)
-                .ThenInclude(p => p.ToDos)
+                .ThenInclude(p=>p.Tag)
             .FirstOrDefaultAsync();
 
         return new Response<WorkSpace>(Status.Success, "working space retreived", workspace);
